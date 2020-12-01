@@ -3,6 +3,7 @@ package me.fiveship.nbtmapper.converters;
 import net.minecraft.nbt.FloatNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 public class FloatNBTConverter implements NBTConverter<Float> {
     @Override
@@ -10,17 +11,17 @@ public class FloatNBTConverter implements NBTConverter<Float> {
         return Float.class;
     }
     @Override
-    public boolean canItUse(Object value) {
-        return value.getClass().equals(Float.class) || value.getClass().equals(Float.TYPE);
+    public boolean canItUse(Class<?> value) {
+        return value.equals(Float.class) || value.equals(Float.TYPE);
     }
 
     @Override
-    public INBT serialize(Float value, World context) {
+    public INBT serialize(Float value, ServerWorld context) {
         return FloatNBT.valueOf(value);
     }
 
     @Override
-    public Float deserialize(Float value, World context, INBT nbt) {
+    public Float deserialize(Float value, ServerWorld context, INBT nbt) {
         return ((FloatNBT) nbt).getFloat();
     }
 }

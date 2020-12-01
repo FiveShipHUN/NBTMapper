@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.IntNBT;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -24,7 +25,7 @@ public class BasicNBTConverter implements NBTConverter<Object> {
     }
 
     @Override
-    public INBT serialize(Object value, World context) {
+    public INBT serialize(Object value, ServerWorld context) {
         //  System.out.println("Serialization started...");
         CompoundNBT nbt = new CompoundNBT();
         // System.out.println(value.getClass().getName());
@@ -77,7 +78,7 @@ public class BasicNBTConverter implements NBTConverter<Object> {
     }
 
     @Override
-    public Object deserialize(Object value, World context, INBT inbt) {
+    public Object deserialize(Object value, ServerWorld context, INBT inbt) {
         CompoundNBT nbt = (CompoundNBT) inbt;
         for (String key : nbt.keySet()) {
             try {
@@ -88,7 +89,7 @@ public class BasicNBTConverter implements NBTConverter<Object> {
                         Object o = parent.deserialize(nbtvalue, field.getType(), context);
                         field.set(value, o);
                     } else {
-                        Object o = parent.deserializeAndApply(nbtvalue, field.get(value), context);
+                        Object o = parent.deserializeAndApply(nbtvalue, field.get(value), field.getType(), context);
                         field.set(value, o);
                     }
                 }

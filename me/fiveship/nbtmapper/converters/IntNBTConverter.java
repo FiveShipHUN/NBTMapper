@@ -3,6 +3,7 @@ package me.fiveship.nbtmapper.converters;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.IntNBT;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 public class IntNBTConverter implements NBTConverter<Integer> {
     @Override
@@ -11,18 +12,18 @@ public class IntNBTConverter implements NBTConverter<Integer> {
     }
 
     @Override
-    public boolean canItUse(Object value) {
-        return value.getClass().equals(Integer.class) || value.getClass().equals(Integer.TYPE);
+    public boolean canItUse(Class<?> value) {
+        return value.equals(Integer.class) || value.equals(Integer.TYPE);
     }
 
     @Override
-    public INBT serialize(Integer value, World context) {
+    public INBT serialize(Integer value, ServerWorld context) {
 
         return IntNBT.valueOf(value);
     }
 
     @Override
-    public Integer deserialize(Integer value, World context, INBT nbt) {
+    public Integer deserialize(Integer value, ServerWorld context, INBT nbt) {
         IntNBT inbt = ((IntNBT) nbt);
         Integer i = new Integer(inbt.getInt());
         return i;

@@ -2,10 +2,7 @@ package me.fiveship.nbtmapper;
 
 import net.minecraft.nbt.CompoundNBT;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Deprecated
 public class NBTTest {
@@ -31,6 +28,8 @@ public class NBTTest {
         public String city = "";
         @NBTProperty("Street")
         public String street = "";
+        @NBTProperty("ID")
+        public UUID id = null;
     }
 
     public static void main(String[] args) {
@@ -42,12 +41,14 @@ public class NBTTest {
         person.male = true;
         address.city = "NYC";
         address.street = "Asd";
+        address.id = UUID.randomUUID();
         person.address = address;
         person.items = new HashSet<>(Arrays.asList("apple", "stick"));
         CompoundNBT nbt = (CompoundNBT) map.serialize(person, null);
         System.out.println("Result: " + nbt.toString());
         Person copy = map.deserialize(nbt, Person.class, null);
         System.out.println("Age: " + copy.age);
+        System.out.println("ID: " + copy.address.id);
         System.out.println("First item: " + new ArrayList<>(copy.items).get(0));
     }
 

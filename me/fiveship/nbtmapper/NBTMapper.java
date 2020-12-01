@@ -3,7 +3,7 @@ package me.fiveship.nbtmapper;
 import me.fiveship.nbtmapper.converters.*;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.StringNBT;
-import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -46,6 +46,8 @@ public class NBTMapper {
         primitiveConverters.add(new LongNBTConverter());
         primitiveConverters.add(new FloatNBTConverter());
         primitiveConverters.add(new DoubleNBTConverter());
+        primitiveConverters.add(new UUIDNBTConverter());
+        primitiveConverters.add(new EntityNBTConverter());
     }
 
     public void registerConverter(NBTConverter<?> c) {
@@ -56,13 +58,13 @@ public class NBTMapper {
         defaultConstructor.put(clazz, s);
     }
 
-    public INBT serialize(Object value, World context) {
+    public INBT serialize(Object value, ServerWorld context) {
         if (value == null) {
             return StringNBT.valueOf("#NULL#");
         }
         for (NBTConverter<?> c : converters) {
             try {
-                if (c.canItUse(value)) {
+                if (c.canItUse(value.getClass())) {
                     return c.serializeObject(value, context);
                 }
             } catch (Exception e) {
@@ -70,7 +72,7 @@ public class NBTMapper {
         }
         for (NBTConverter<?> c : primitiveConverters) {
             try {
-                if (c.canItUse(value)) {
+                if (c.canItUse(value.getClass())) {
                     return c.serializeObject(value, context);
                 }
             } catch (Exception e) {
@@ -79,18 +81,14 @@ public class NBTMapper {
         return basic.serializeObject(value, context);
     }
 
-    public <T> T deserializeAndApply(INBT nbt, T value, World context) {
-        if (value == null) {
-            System.out.println("NULL NULL NULL");
-            return null;
-        }
+    public <T> T deserializeAndApply(INBT nbt, T value, Class<?> type, ServerWorld context) {
         if (nbt instanceof StringNBT && nbt.getString().equals("#NULL#")) {
             return null;
         }
         // Class<?> clazz = value.getClass();
         for (NBTConverter<?> c : converters) {
             try {
-                if (c.canItUse(value)) {
+                if (c.canItUse(type)) {
                     return (T) c.deserializeValue(value, context, nbt);
                 }
             } catch (Exception e) {
@@ -98,7 +96,7 @@ public class NBTMapper {
         }
         for (NBTConverter<?> c : primitiveConverters) {
             try {
-                if (c.canItUse(value)) {
+                if (c.canItUse(type)) {
                     T t = (T) c.deserializeValue(value, context, nbt);
                     return t;
                 }
@@ -109,12 +107,12 @@ public class NBTMapper {
         return (T) basic.deserializeValue(value, context, nbt);
     }
 
-    public <T> T deserialize(INBT nbt, Class<T> type, World context) {
+    public <T> T deserialize(INBT nbt, Class<T> type, ServerWorld context) {
         for (Map.Entry<Class<?>, Supplier<?>> entry : defaultConstructor.entrySet()) {
             try {
                 if (type.equals(entry.getKey())) {
                     Supplier<T> s = (Supplier<T>) entry.getValue();
-                    return deserialize(nbt, s, context);
+                    return deserialize(nbt, s, type, context);
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -124,7 +122,7 @@ public class NBTMapper {
             try {
                 if (type.isAssignableFrom(entry.getKey()) || entry.getKey().isAssignableFrom(type)) {
                     Supplier<T> s = (Supplier<T>) entry.getValue();
-                    return deserialize(nbt, s, context);
+                    return deserialize(nbt, s, type, context);
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -137,12 +135,12 @@ public class NBTMapper {
                 return null;
             }
         };
-        return deserialize(nbt, t, context);
+        return deserialize(nbt, t, type, context);
     }
 
-    public <T> T deserialize(INBT nbt, Supplier<T> constructor, World context) {
+    public <T> T deserialize(INBT nbt, Supplier<T> constructor, Class<T> type, ServerWorld context) {
         T t = constructor.get();
-        t = deserializeAndApply(nbt, t, context);
+        t = deserializeAndApply(nbt, t, type, context);
         return t;
     }
 

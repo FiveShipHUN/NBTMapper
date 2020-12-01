@@ -5,6 +5,7 @@ import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.StringNBT;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,7 +25,7 @@ public class CollectionNBTConverter implements NBTConverter<Collection> {
     }
 
     @Override
-    public INBT serialize(Collection value, World context) {
+    public INBT serialize(Collection value, ServerWorld context) {
         ListNBT nbt = new ListNBT();
         if (value.size() > 0) {
             List<?> list = new ArrayList<>(value);
@@ -37,7 +38,7 @@ public class CollectionNBTConverter implements NBTConverter<Collection> {
     }
 
     @Override
-    public Collection deserialize(Collection value, World context, INBT nbt) {
+    public Collection deserialize(Collection value, ServerWorld context, INBT nbt) {
         value.clear();
         ListNBT list = (ListNBT) nbt;
         if (list.size() == 0) {

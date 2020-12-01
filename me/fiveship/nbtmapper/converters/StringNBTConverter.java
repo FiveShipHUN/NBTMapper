@@ -3,6 +3,7 @@ package me.fiveship.nbtmapper.converters;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.StringNBT;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 public class StringNBTConverter implements NBTConverter<String> {
 
@@ -12,12 +13,12 @@ public class StringNBTConverter implements NBTConverter<String> {
     }
 
     @Override
-    public INBT serialize(String value, World context) {
+    public INBT serialize(String value, ServerWorld context) {
         return StringNBT.valueOf(value);
     }
 
     @Override
-    public String deserialize(String value, World context, INBT nbt) {
+    public String deserialize(String value, ServerWorld context, INBT nbt) {
         return ((StringNBT) nbt).getString();
     }
 }
